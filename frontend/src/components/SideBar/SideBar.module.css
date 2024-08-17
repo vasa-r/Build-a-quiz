@@ -1,0 +1,63 @@
+.sidebarWrapper {
+  height: 100vh;
+  width: 100%;
+  background-color: #ffffff;
+  box-shadow: 0px 4px 4px 0px #00000040;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 16px;
+  overflow-y: auto;
+  scroll-behavior: smooth;
+}
+
+.sidebarWrapper .title h1 {
+  font-family: "Jomhuria", sans-serif;
+  font-size: 70px;
+  font-weight: 400;
+  line-height: 70px;
+  color: #474444;
+}
+
+.navLinks {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.navLinks a {
+  text-align: center;
+  font-family: "Poppins", sans-serif;
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 30px;
+  color: #474444;
+}
+
+.navLinks .activeNav {
+  box-shadow: 0px 0px 14px 0px #0000001f;
+  border-radius: 10px;
+  padding: 4px 24px;
+}
+
+.logout {
+  width: 100%;
+  padding: 0px 10px;
+}
+
+.logout hr {
+  margin-bottom: 24px;
+  border: 1px solid #000000;
+  width: 100%;
+}
+
+.logout h1 {
+  font-family: "Poppins", sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 30px;
+  color: #474444;
+  text-align: center;
+  cursor: pointer;
+}

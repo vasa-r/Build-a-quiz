@@ -1,0 +1,132 @@
+.authWrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 70px 80px;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.credArea {
+  background-color: #ffffff;
+  height: 100%;
+  width: 100%;
+  border-radius: 15px;
+  box-shadow: 0px 0px 30px 0px #00000026;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 45px;
+}
+
+.title {
+  padding: 35px 0px;
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+.title h1 {
+  font-family: "Jomhuria", serif;
+  font-size: 100px;
+  font-weight: 400;
+  line-height: 100px;
+  text-align: center;
+  color: #474444;
+}
+
+.authNav {
+  display: flex;
+  gap: 20px;
+}
+
+.authNav p {
+  display: inline-block;
+  font-family: "Poppins", sans-serif;
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 30px;
+  text-align: center;
+  color: #474444;
+  padding: 0px 50px;
+  cursor: pointer;
+}
+
+.authNav .selectedNav {
+  border-radius: 10px;
+  box-shadow: 0px 0px 50px 0px #0019ff3d;
+}
+
+.fields {
+  width: 606px;
+  height: 245px;
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+.field {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  gap: 30px;
+}
+
+.field label {
+  font-family: "Poppins", sans-serif;
+  color: #474444;
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 30px;
+  flex: 1.2;
+  text-align: right;
+}
+
+.field .inputs {
+  border: none;
+  outline: none;
+  border-radius: 10px 10px 0px 0px;
+  background: #f4f4f4;
+  width: 388px;
+  height: 38px;
+  padding: 0 20px;
+  flex: 2;
+  font-size: 18px;
+}
+
+.field input:focus {
+  border: 1px solid rgb(0, 115, 255);
+}
+
+.submitBtn button {
+  margin-top: 20px;
+  border: none;
+  width: 274px;
+  height: 38px;
+  background: #a9bcff;
+  border-radius: 8px;
+  font-family: "Poppins", sans-serif;
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 30px;
+  color: #474444;
+  cursor: pointer;
+  margin-left: 50%;
+  transform: translate(-50%);
+}
+
+.errorBorder {
+  border: 1px solid #d60000;
+  outline: none;
+  border-radius: 10px 10px 0px 0px;
+  background: #f4f4f4;
+  width: 388px;
+  height: 38px;
+  padding: 0 20px;
+  flex: 2;
+  font-size: 18px;
+}
+
+.errorBorder::placeholder {
+  color: #d60000;
+}

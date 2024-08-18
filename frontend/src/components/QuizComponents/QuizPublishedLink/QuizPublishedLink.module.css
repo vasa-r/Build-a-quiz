@@ -1,0 +1,71 @@
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(48, 48, 48, 0.9);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  overflow-y: auto;
+}
+
+.mainContainer {
+  font-family: "Poppins", sans-serif;
+  font-weight: 600;
+  background-color: #ffffff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2rem;
+  padding: 3rem 6rem;
+  border-radius: 10px;
+  position: relative;
+}
+
+.mainContainer img {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  width: 19px;
+  height: 19px;
+  cursor: pointer;
+}
+
+.mainContainer h1 {
+  font-size: 39px;
+  line-height: 58.5px;
+  text-align: center;
+  color: #474444;
+}
+
+.link {
+  width: 42.25rem;
+  height: 3.75rem;
+  background-color: #ededed;
+  border-radius: 10px;
+  color: #474444;
+  font-size: 25px;
+  font-weight: 600;
+  line-height: 37.5px;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  padding-left: 2rem;
+}
+
+.share {
+  border: none;
+  outline: none;
+  background-color: #60b84b;
+  font-size: 21px;
+  line-height: 31.5px;
+  text-align: center;
+  color: #ffffff;
+  border-radius: 10px;
+  width: 17.5rem;
+  height: 2.875rem;
+  cursor: pointer;
+}

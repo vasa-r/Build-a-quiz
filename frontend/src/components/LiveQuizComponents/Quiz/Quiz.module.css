@@ -1,0 +1,267 @@
+.quizWrapper {
+  background-color: #041325;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 80px;
+  overflow-y: auto;
+}
+
+.innerContainer {
+  width: 70rem;
+  height: 40rem;
+  background-color: #ffffff;
+  border-radius: 15px;
+  box-shadow: 0px 0px 30px 0px #00000026;
+  padding: 2rem;
+  font-family: "Poppins", sans-serif;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.topData {
+  display: flex;
+  justify-content: space-between;
+}
+
+.qstnNumber,
+.timer {
+  font-size: 40px;
+  font-weight: 700;
+  line-height: 60px;
+}
+
+.qstnNumber {
+  color: #474444;
+}
+
+.timer {
+  color: #d60000;
+}
+
+.question {
+  font-size: 40px;
+  font-weight: 700;
+  line-height: 60px;
+  color: #474444;
+  text-align: center;
+}
+
+.answerOptions {
+  width: 50rem;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(320px, 1fr));
+  row-gap: 3rem;
+  column-gap: 6rem;
+  margin: 0 auto;
+}
+
+.answerOptions .option {
+  font-size: 35px;
+  font-weight: 600;
+  line-height: 52.5px;
+  background-color: #f0f0f0;
+  border-radius: 10px;
+  text-align: center;
+  padding: 1.875rem 0px;
+}
+
+.selectedOption {
+  border: 5px solid #5076ff;
+}
+
+.LiveQuizButton {
+  border: none;
+  outline: none;
+  border-radius: 10px;
+  font-size: 30px;
+  font-weight: 600;
+  line-height: 45px;
+  text-align: center;
+  color: #ffffff;
+  background-color: #60b84b;
+  margin-left: 50%;
+  transform: translate(-50%);
+  padding: 6px 0;
+  width: 20rem;
+}
+
+.imageOption {
+  border-radius: 10px;
+  height: 10rem;
+}
+
+.imageOption img {
+  border-radius: 10px;
+  height: 10rem;
+  width: 100%;
+}
+
+.answerImageOptions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(320px, 1fr));
+  row-gap: 2rem;
+  column-gap: 14rem;
+  margin: 0 auto;
+}
+
+.textNimageOption {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: #f0f0f0;
+  border-radius: 10px;
+  padding: 16px;
+  width: 320px;
+}
+
+.textNimageOption p {
+  font-size: 35px;
+  font-weight: 600;
+  line-height: 52.5px;
+  color: #000000;
+}
+
+.textNimageOption img {
+  width: 8.5rem;
+  height: 7.5rem;
+  border-radius: 10px;
+}
+
+@media (max-width: 768px) {
+  .quizWrapper {
+    background-color: #ffffff;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+
+  .innerContainer {
+    height: 100%;
+    background-color: #ffffff;
+    padding: 2.5rem 2rem;
+    font-family: "Poppins", sans-serif;
+    display: flex;
+    flex-direction: column;
+    justify-content: start;
+    gap: 2.5rem;
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+
+  .topData {
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .qstnNumber,
+  .timer {
+    font-size: 25px;
+    font-weight: 700;
+    line-height: 37px;
+  }
+
+  .qstnNumber {
+    color: #474444;
+  }
+
+  .timer {
+    color: #d60000;
+  }
+
+  .question {
+    font-size: 30px;
+    font-weight: 700;
+    line-height: 45px;
+    color: #474444;
+    text-align: center;
+  }
+
+  .answerOptions {
+    width: 20rem;
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+    margin: 0 auto;
+  }
+
+  .answerOptions .option {
+    font-size: 20px;
+    font-weight: 600;
+    line-height: 30px;
+    background-color: #f0f0f0;
+    border-radius: 10px;
+    text-align: center;
+    padding: 8px 0;
+  }
+
+  .selectedOption {
+    border: 3px solid #5076ff;
+  }
+
+  .LiveQuizButton {
+    border: none;
+    outline: none;
+    border-radius: 10px;
+    font-size: 20px;
+    font-weight: 600;
+    line-height: 30px;
+    text-align: center;
+    color: #ffffff;
+    background-color: #60b84b;
+    margin-left: 50%;
+    transform: translate(-50%);
+    padding: 6px 0;
+    width: 11.75rem;
+  }
+
+  .imageOption {
+    border-radius: 10px;
+    width: 100%;
+    height: 6rem;
+  }
+
+  .imageOption img {
+    border-radius: 10px;
+    height: 6rem;
+    width: 100%;
+  }
+
+  .answerImageOptions {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 18px;
+    margin: 0 auto;
+  }
+
+  .textNimageOption {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: #f0f0f0;
+    border-radius: 10px;
+    padding: 10px;
+    width: calc(100% - 14px);
+  }
+
+  .textNimageOption p {
+    font-size: 24px;
+    font-weight: 600;
+    line-height: 36px;
+    color: #000000;
+  }
+
+  .textNimageOption img {
+    width: 8.5rem;
+    height: 4.75rem;
+    border-radius: 10px;
+  }
+}

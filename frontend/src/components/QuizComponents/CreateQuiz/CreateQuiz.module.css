@@ -101,3 +101,8 @@
   background-color: #60b84b;
   color: #ffffff;
 }
+
+.errorText {
+  font-size: 12px;
+  color: #d60000;
+}

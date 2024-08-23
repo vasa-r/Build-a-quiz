@@ -52,7 +52,24 @@
   cursor: pointer;
 }
 
-.top .qstnNumbers .numbers img {
+.top .qstnNumbers .selectedNumbers {
+  height: 50px;
+  width: 50px;
+  border-radius: 50%;
+  box-shadow: 0px 0px 10px 0px #00000026;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 20px;
+  line-height: 30px;
+  color: #ffffff;
+  background-color: #60b84b;
+  position: relative;
+  cursor: pointer;
+}
+
+.top .qstnNumbers .numbers img,
+.top .qstnNumbers .selectedNumbers img {
   position: absolute;
   top: 4px;
   right: 4px;
@@ -183,6 +200,14 @@
   margin-left: 0;
 }
 
+.answerOption .selectedTextInput,
+.answerOption .selectedTextInput::placeholder {
+  width: 18.5rem;
+  margin-left: 0;
+  background-color: #60b84b;
+  color: #fff;
+}
+
 .answerOption img {
   cursor: pointer;
 }
@@ -258,6 +283,7 @@
   box-shadow: 0px 0px 15px 0px #00000026;
   padding: 5.75px 25px;
   color: #9f9f9f;
+  cursor: pointer;
 }
 
 .timers .selectedTimeOption {
@@ -269,6 +295,7 @@
   border-radius: 10px;
   padding: 5.75px 25px;
   color: #ffffff;
+  cursor: pointer;
 }
 
 .answerOption .textImageInput {
@@ -276,7 +303,38 @@
   margin-left: 0;
 }
 
+.answerOption .selectedTextImageInput {
+  width: 11.25rem;
+  margin-left: 0;
+  background-color: #60b84b;
+  color: #fff;
+}
+
+.answerOption .selectedTextImageInput::placeholder {
+  width: 11.25rem;
+  margin-left: 0;
+  background-color: #60b84b;
+  color: #fff;
+}
+
 .answerOption .imageInput {
   width: 15.875rem;
   margin-left: 0;
+}
+
+.answerOption .selectedImageInput,
+.answerOption .selectedImageInput::placeholder {
+  width: 15.875rem;
+  margin-left: 0;
+  background-color: #60b84b;
+  color: #fff;
+}
+
+.plusIcon {
+  cursor: pointer;
+}
+
+.errorText {
+  font-size: 12px;
+  color: #d60000;
 }

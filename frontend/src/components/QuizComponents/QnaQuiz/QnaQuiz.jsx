@@ -1,171 +1,581 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import styles from "./QNAquiz.module.css";
 import Cross from "../../../assets/cross.svg";
 import Plus from "../../../assets/plus.svg";
 import Delete from "../../../assets/delete.svg";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate, useParams } from "react-router-dom";
+import {
+  addQuestions,
+  removeQuestion,
+  updateQuestion,
+  addOptions,
+  removeOptions,
+  resetOptions,
+  resetQuizQuestions,
+  setQuestions,
+} from "../../../redux/slices/quizQuestionSlice";
+import {
+  resetQuizData,
+  setQuizData,
+} from "../../../redux/slices/quizFieldSlice";
+import { toast } from "react-toastify";
+import useValidateQnaQuiz from "../../../hooks/useValidateQnaQuiz";
+import { createQuiz, getOneQuiz, updateQuiz } from "../../../api/quiz";
 
 const QnaQuiz = () => {
-  const [optionType, setOptionType] = useState("textNimage");
-  return (
-    <div className={styles.modalOverlay}>
-      <div className={styles.mainModal}>
-        <div className={styles.top}>
-          <div className={styles.qstnNumbers}>
-            <div className={styles.numbers}>1</div>
-            <div className={styles.numbers}>
-              2 <img src={Cross} alt="remove questiion" />
-            </div>
-            <div className={styles.numbers}>
-              3 <img src={Cross} alt="remove questiion" />
-            </div>
-            <div className={styles.numbers}>
-              4 <img src={Cross} alt="remove questiion" />
-            </div>
-            <div className={styles.numbers}>
-              5 <img src={Cross} alt="remove questiion" />
-            </div>
-            <div className={styles.plusIcon}>
-              <img src={Plus} alt="add quiz" />
-            </div>
-          </div>
-          <p>Max 5 questions</p>
-        </div>
-        <input type="text" placeholder="Q & A Question" />
-        <div className={styles.optionType}>
-          <p>Option Type </p>
-          <div className={styles.options}>
-            <input type="radio" name="option" id="text" />
-            <label htmlFor="text">Text</label>
-          </div>
-          <div className={styles.options}>
-            <input type="radio" name="option" id="image" />
-            <label htmlFor="image">Image URL</label>
-          </div>
-          <div className={styles.options}>
-            <input type="radio" name="option" id="textNimage" />
-            <label htmlFor="textNimage">Text & Image URL</label>
-          </div>
-        </div>
-        <div className={styles.bottom}>
-          <div className={styles.answerOptions}>
-            <div className={styles.answerOption}>
-              <input
-                className={styles.radioCheck}
-                type="radio"
-                name="answerOption"
-                id="image"
-              />
-              <span className={styles.customRadio}></span>
-              <input
-                className={
-                  optionType === "textNimage"
-                    ? styles.textImageInput
-                    : styles.textInput
-                }
-                type="text"
-                placeholder="Text"
-              />
+  const [selectedQuestion, setSelectedQuestion] = useState(1);
+  const [error, setError] = useState(null);
+  const [quizId, setQuizId] = useState("");
+  const { quizName, quizType } = useSelector((store) => store.fields);
+  const quizQuestions = useSelector((store) => store.questions);
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const { id } = useParams();
 
-              {optionType === "textNimage" && (
-                <input
-                  className={styles.imageInput}
-                  type="text"
-                  placeholder="Image URL"
-                />
+  useEffect(() => {
+    setQuizId(id);
+    if (quizId && quizId.trim() !== "") {
+      getOldQuiz(id);
+    }
+  }, [quizId]);
+
+  const selectedQuestionData = quizQuestions.find(
+    (q) => q.questionNo === selectedQuestion
+  );
+
+  const handleAddQuestion = () => {
+    if (!selectedQuestionData) return;
+    const qstnError = useValidateQnaQuiz(
+      quizQuestions[quizQuestions.length - 1]
+    );
+    console.log(qstnError);
+
+    if (Object.keys(qstnError).length !== 0) {
+      setError((prevError) => ({
+        ...prevError,
+        [quizQuestions[quizQuestions.length - 1].questionNo]: qstnError,
+      }));
+      return;
+    } else {
+      setError((prevError) => ({
+        ...prevError,
+        [quizQuestions[quizQuestions.length - 1].questionNo]: {},
+      }));
+    }
+
+    if (quizQuestions.length < 5) {
+      const newQuestionNo = quizQuestions.length + 1;
+      setSelectedQuestion(newQuestionNo);
+      dispatch(addQuestions());
+    }
+    return;
+  };
+
+  const handleQuestionSelect = (questionNo) => {
+    setSelectedQuestion(questionNo);
+  };
+
+  const handleRemoveQuestion = (index) => {
+    if (quizQuestions[index].questionNo === selectedQuestion) {
+      setSelectedQuestion(index > 0 ? quizQuestions[index - 1].questionNo : 2);
+    } else if (quizQuestions[index].questionNo < selectedQuestion) {
+      setSelectedQuestion(selectedQuestion - 1);
+    }
+
+    dispatch(removeQuestion(index));
+  };
+
+  const handleQuestionName = (e, questionNo) => {
+    const { value } = e.target;
+    dispatch(updateQuestion({ questionNo, question: value }));
+  };
+
+  const handleOptionType = (questionNo, optionType) => {
+    if (id) {
+      toast.error("Can't change option type");
+    } else {
+      dispatch(resetOptions({ questionNo, optionType }));
+      dispatch(updateQuestion({ questionNo, optionType }));
+    }
+  };
+
+  const handleOptionChange = (e, questionNo, optionIndex, optionType) => {
+    console.log(questionNo, optionIndex, optionType);
+    const { value } = e.target;
+
+    console.log(value);
+
+    dispatch(
+      updateQuestion({
+        optionType,
+        questionNo,
+        optionIndex,
+        option: value,
+      })
+    );
+  };
+
+  const handleTextImageChange = (
+    e,
+    questionNo,
+    optionIndex,
+    optionType,
+    fieldType
+  ) => {
+    const { value } = e.target;
+    dispatch(
+      updateQuestion({
+        fieldType,
+        optionType,
+        questionNo,
+        optionIndex,
+        option: value,
+      })
+    );
+  };
+
+  const addOption = (questionNo, optionType) => {
+    if (id) {
+      return;
+    }
+    dispatch(
+      addOptions({
+        questionNo,
+        optionType,
+      })
+    );
+  };
+
+  const removeOption = (index, questionNo, optionType) => {
+    dispatch(
+      removeOptions({
+        index,
+        questionNo,
+        optionType,
+      })
+    );
+  };
+
+  const handleCorrectAnswer = (questionNo, index) => {
+    if (id) {
+      toast.error("Can't change correct answer. You can edit optoin");
+    }
+    if (!id) {
+      dispatch(updateQuestion({ questionNo, index }));
+    }
+  };
+
+  const handleTimer = (questionNo, time) => {
+    dispatch(updateQuestion({ questionNo, time }));
+  };
+
+  //if refreash happens it will go the dashboard
+  // useEffect(() => {
+  //   if (id) {
+  //     return;
+  //   }
+  //   if (!quizName || !quizType) {
+  //     navigate("/main/dashboard");
+  //   }
+  // }, [quizName, quizType, navigate]);
+
+  const handleCancel = () => {
+    dispatch(resetQuizData());
+    dispatch(resetQuizQuestions());
+    navigate("/main/dashboard");
+  };
+
+  const handleCreate = async () => {
+    const qstnError = useValidateQnaQuiz(
+      quizQuestions[quizQuestions.length - 1]
+    );
+
+    if (Object.keys(qstnError).length !== 0) {
+      setError((prevError) => ({
+        ...prevError,
+        [quizQuestions[quizQuestions.length - 1].questionNo]: qstnError,
+      }));
+      return;
+    } else {
+      setError((prevError) => ({
+        ...prevError,
+        [quizQuestions[quizQuestions.length - 1].questionNo]: {},
+      }));
+
+      try {
+        console.log(localStorage.getItem("token"));
+        if (id) {
+          await updateOldQuiz();
+        } else {
+          await createNewQuiz();
+        }
+      } catch (error) {
+        toast.error("Please try again also check every fields are filled");
+      }
+    }
+  };
+
+  const createNewQuiz = async () => {
+    try {
+      const response = await createQuiz(quizName, quizType, quizQuestions);
+      console.log(quizName, quizType, quizQuestions);
+      console.log(response);
+      if (response.success || response.status === 201) {
+        toast.success(response?.data?.message);
+        const newShareId = response?.data?.data._id;
+        dispatch(resetQuizData());
+        dispatch(resetQuizQuestions());
+        navigate(`/main/share/${newShareId}`);
+      } else {
+        toast.error(
+          response?.data?.message ||
+            "Form creation failed. Please try again later"
+        );
+      }
+    } catch (error) {
+      toast.error(
+        "An error occurred during form creation. Please try again later."
+      );
+    }
+  };
+
+  const updateOldQuiz = async () => {
+    try {
+      const response = await updateQuiz(id, quizQuestions);
+      console.log(quizName, quizType, quizQuestions);
+      console.log(response);
+      if (response.success || response.status === 200) {
+        toast.success(response?.data?.message);
+        dispatch(resetQuizData());
+        dispatch(resetQuizQuestions());
+        navigate(`/main/share/${id}`);
+      } else {
+        toast.error(
+          response?.data?.message ||
+            "Form updation failed. Please try again later"
+        );
+      }
+    } catch (error) {
+      toast.error(
+        "An error occurred during form creation. Please try again later."
+      );
+    }
+  };
+
+  const getOldQuiz = async () => {
+    try {
+      const response = await getOneQuiz(quizId);
+      console.log(response);
+      if (response.success || response.status === 200) {
+        const { data } = response.data;
+        console.log(data);
+        dispatch(
+          setQuizData({ quizName: data.quizName, quizType: data.quizType })
+        );
+
+        console.log(data.quizQuestions);
+        dispatch(setQuestions(data.quizQuestions));
+      } else {
+        toast.error(
+          response?.data?.message ||
+            "Couldn't fetch quiz. Please try again later"
+        );
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error(
+        "An error occurred during fetching quiz. Please try again later."
+      );
+    }
+  };
+
+  return (
+    <>
+      <div className={styles.modalOverlay}>
+        <div className={styles.mainModal}>
+          <div className={styles.top}>
+            <div className={styles.qstnNumbers}>
+              {quizQuestions.map((question, index) => {
+                const { questionNo } = question;
+                return (
+                  <div
+                    className={
+                      selectedQuestion === questionNo
+                        ? styles.selectedNumbers
+                        : styles.numbers
+                    }
+                    key={questionNo}
+                    onClick={() => handleQuestionSelect(questionNo)}
+                  >
+                    {questionNo}
+                    {questionNo !== 1 && (
+                      <img
+                        src={Cross}
+                        alt="remove questiion"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleRemoveQuestion(index);
+                        }}
+                      />
+                    )}
+                  </div>
+                );
+              })}
+              {quizQuestions.length < 5 && (
+                <div
+                  className={styles.plusIcon}
+                  onClick={() => handleAddQuestion(selectedQuestion)}
+                >
+                  <img src={Plus} alt="add quiz" />
+                </div>
               )}
             </div>
-            <div className={styles.answerOption}>
-              <input
-                className={styles.radioCheck}
-                type="radio"
-                name="answerOption"
-                id="image"
-              />
-              <span className={styles.customRadio}></span>
-              <input
-                className={
-                  optionType === "textNimage"
-                    ? styles.textImageInput
-                    : styles.textInput
-                }
-                type="text"
-                placeholder="Text"
-              />
-              {optionType === "textNimage" && (
-                <input
-                  className={styles.imageInput}
-                  type="text"
-                  placeholder="Image URL"
-                />
-              )}
-            </div>
-            <div className={styles.answerOption}>
-              <input
-                className={styles.radioCheck}
-                type="radio"
-                name="answerOption"
-                id="image"
-              />
-              <span className={styles.customRadio}></span>
-              <input
-                className={
-                  optionType === "textNimage"
-                    ? styles.textImageInput
-                    : styles.textInput
-                }
-                type="text"
-                placeholder="Text"
-              />
-              {optionType === "textNimage" && (
-                <input
-                  className={styles.imageInput}
-                  type="text"
-                  placeholder="Image URL"
-                />
-              )}
-              <img src={Delete} alt="remove option" />
-            </div>
-            <div className={styles.answerOption}>
-              <input
-                className={styles.radioCheck}
-                type="radio"
-                name="answerOption"
-                id="image"
-              />
-              <span className={styles.customRadio}></span>
-              <input
-                className={
-                  optionType === "textNimage"
-                    ? styles.textImageInput
-                    : styles.textInput
-                }
-                type="text"
-                placeholder="Text"
-              />
-              {optionType === "textNimage" && (
-                <input
-                  className={styles.imageInput}
-                  type="text"
-                  placeholder="Image URL"
-                />
-              )}
-              <img src={Delete} alt="remove option" />
-            </div>
-            <div className={styles.addOption}>Add option</div>
+            <p>Max 5 questions</p>
           </div>
-          <div className={styles.timers}>
-            <p className={styles.heading}>Timer</p>
-            <p className={styles.timeOption}>OFF</p>
-            <p className={styles.timeOption}>5 sec</p>
-            <p className={styles.timeOption}>10 sec</p>
+          <input
+            type="text"
+            placeholder="Q & A Question"
+            autoFocus={true}
+            value={selectedQuestionData ? selectedQuestionData.question : ""}
+            onChange={(e) => handleQuestionName(e, selectedQuestion)}
+          />
+
+          {error !== null && error[selectedQuestion]?.question && (
+            <p
+              className={styles.errorText}
+              style={{ marginTop: "-20px", marginLeft: "2.5rem" }}
+            >
+              {error[selectedQuestion].question}
+            </p>
+          )}
+          <div className={styles.optionType}>
+            <p>Option Type </p>
+            <div className={styles.options}>
+              <input
+                type="radio"
+                name="option"
+                id="text"
+                checked={selectedQuestionData?.optionType === "text"}
+                onChange={() => handleOptionType(selectedQuestion, "text")}
+              />
+              <label htmlFor="text">Text</label>
+            </div>
+            <div className={styles.options}>
+              <input
+                type="radio"
+                name="option"
+                id="image"
+                checked={selectedQuestionData?.optionType === "image"}
+                onChange={() => handleOptionType(selectedQuestion, "image")}
+              />
+              <label htmlFor="image">Image URL</label>
+            </div>
+            <div className={styles.options}>
+              <input
+                type="radio"
+                name="option"
+                id="textNimage"
+                checked={selectedQuestionData?.optionType === "textNimage"}
+                onChange={() =>
+                  handleOptionType(selectedQuestion, "textNimage")
+                }
+              />
+              <label htmlFor="textNimage">Text & Image URL</label>
+            </div>
           </div>
-        </div>
-        <div className={styles.createBtns}>
-          <button className={styles.cancel}>Cancel</button>
-          <button className={styles.create}>Create Quiz</button>
+          <div className={styles.bottom}>
+            <div className={styles.answerOptions}>
+              {selectedQuestionData.options.text.map((option, index) => (
+                <div className={styles.answerOption} key={index}>
+                  <input
+                    className={styles.radioCheck}
+                    type="radio"
+                    name="answerOption"
+                    id={`option-${index}`}
+                    checked={selectedQuestionData.correctAnswer - 1 === index}
+                    onChange={() =>
+                      handleCorrectAnswer(selectedQuestion, index)
+                    }
+                  />
+                  <span className={styles.customRadio}></span>
+                  <input
+                    className={
+                      selectedQuestionData?.optionType === "textNimage"
+                        ? selectedQuestionData.correctAnswer - 1 === index
+                          ? styles.selectedTextImageInput
+                          : styles.textImageInput
+                        : selectedQuestionData.correctAnswer - 1 === index
+                        ? styles.selectedTextInput
+                        : styles.textInput
+                    }
+                    type="text"
+                    placeholder={
+                      selectedQuestionData?.optionType === "text"
+                        ? "Text"
+                        : selectedQuestionData?.optionType === "image"
+                        ? "Image"
+                        : "Text"
+                    }
+                    value={
+                      selectedQuestionData?.optionType !== "textNimage"
+                        ? selectedQuestionData?.optionType === "text"
+                          ? selectedQuestionData.options.text[index] || ""
+                          : selectedQuestionData.options.image[index] || ""
+                        : selectedQuestionData.options.text[index]
+                    }
+                    onChange={
+                      selectedQuestionData?.optionType !== "textNimage"
+                        ? (e) =>
+                            handleOptionChange(
+                              e,
+                              selectedQuestionData.questionNo,
+                              index,
+                              selectedQuestionData?.optionType === "text"
+                                ? "text"
+                                : "image"
+                            )
+                        : (e) =>
+                            handleTextImageChange(
+                              e,
+                              selectedQuestionData.questionNo,
+                              index,
+                              "textNimage",
+                              "text"
+                            )
+                    }
+                  />
+
+                  {selectedQuestionData?.optionType === "textNimage" && (
+                    <input
+                      className={
+                        selectedQuestionData.correctAnswer - 1 === index
+                          ? styles.selectedImageInput
+                          : styles.imageInput
+                      }
+                      type="text"
+                      placeholder="Image URL"
+                      value={selectedQuestionData.options.image[index] || ""}
+                      onChange={(e) =>
+                        handleTextImageChange(
+                          e,
+                          selectedQuestionData.questionNo,
+                          index,
+                          "textNimage",
+                          "image"
+                        )
+                      }
+                    />
+                  )}
+                  {!id && index >= 2 && (
+                    <img
+                      src={Delete}
+                      alt="remove option"
+                      onClick={() =>
+                        removeOption(
+                          index,
+                          selectedQuestionData.questionNo,
+                          selectedQuestionData.optionType
+                        )
+                      }
+                    />
+                  )}
+                </div>
+              ))}
+              {error !== null && error[selectedQuestion]?.textOptions && (
+                <p
+                  className={styles.errorText}
+                  style={{ marginLeft: "2.5rem" }}
+                >
+                  {error[selectedQuestion].textOptions}
+                </p>
+              )}
+              {error !== null && error[selectedQuestion]?.imageOptions && (
+                <p
+                  className={styles.errorText}
+                  style={{ marginLeft: "2.5rem" }}
+                >
+                  {error[selectedQuestion].imageOptions}
+                </p>
+              )}
+
+              {error !== null && error[selectedQuestion]?.options && (
+                <p
+                  className={styles.errorText}
+                  style={{ marginLeft: "2.5rem" }}
+                >
+                  {error[selectedQuestion].options}
+                </p>
+              )}
+              {error !== null && error[selectedQuestion]?.correctAnswer && (
+                <p
+                  className={styles.errorText}
+                  style={{ marginLeft: "2.5rem" }}
+                >
+                  {error[selectedQuestion].correctAnswer}
+                </p>
+              )}
+              {!id && selectedQuestionData.options.text.length < 4 && (
+                <div
+                  className={styles.addOption}
+                  onClick={() =>
+                    addOption(
+                      selectedQuestionData.questionNo,
+                      selectedQuestionData.optionType
+                    )
+                  }
+                >
+                  Add option
+                </div>
+              )}
+            </div>
+            <div className={styles.timers}>
+              <p className={styles.heading}>Timer</p>
+              <p
+                className={
+                  selectedQuestionData.timer === null
+                    ? styles.selectedTimeOption
+                    : styles.timeOption
+                }
+                onClick={() =>
+                  handleTimer(selectedQuestionData.questionNo, null)
+                }
+              >
+                OFF
+              </p>
+              <p
+                className={
+                  selectedQuestionData.timer === 5
+                    ? styles.selectedTimeOption
+                    : styles.timeOption
+                }
+                onClick={() => handleTimer(selectedQuestionData.questionNo, 5)}
+              >
+                5 sec
+              </p>
+              <p
+                className={
+                  selectedQuestionData.timer === 10
+                    ? styles.selectedTimeOption
+                    : styles.timeOption
+                }
+                onClick={() => handleTimer(selectedQuestionData.questionNo, 10)}
+              >
+                10 sec
+              </p>
+            </div>
+          </div>
+          <div className={styles.createBtns}>
+            <button className={styles.cancel} onClick={handleCancel}>
+              Cancel
+            </button>
+            <button className={styles.create} onClick={handleCreate}>
+              {id ? "Update Quiz" : "Create Quiz"}
+            </button>
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 };
 

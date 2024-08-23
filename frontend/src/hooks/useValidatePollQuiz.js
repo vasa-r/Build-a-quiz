@@ -9,22 +9,51 @@ const validatePollQuiz = (quizQuestion) => {
     quizQuestion.optionType === "text" ||
     quizQuestion.optionType === "image"
   ) {
-    if (
-      quizQuestion.options[quizQuestion.optionType].some(
-        (option) => !option || option.trim() === ""
-      )
-    ) {
-      errors.options = "Options shouldn't be empty";
+    if (quizQuestion.optionType === "image") {
+      const urlPattern = /^(https?:\/\/[^\s$.?#].[^\s]*)$/i;
+      const base64Pattern = /^data:image\/(png|jpg|jpeg|gif);base64,/;
+
+      if (
+        quizQuestion.options.image.some(
+          (option) =>
+            !option ||
+            option.trim() === "" ||
+            (!urlPattern.test(option) && !base64Pattern.test(option))
+        )
+      ) {
+        errors.options =
+          "All image options must be valid URLs and not to be empty.";
+      }
+    } else {
+      if (
+        quizQuestion.options[quizQuestion.optionType].some(
+          (option) => !option || option.trim() === ""
+        )
+      ) {
+        errors.options = "Options shouldn't be empty.";
+      }
     }
   } else if (quizQuestion.optionType === "textNimage") {
     const { text, image } = quizQuestion.options;
+    const urlPattern = /^(https?:\/\/[^\s$.?#].[^\s]*)$/i;
+    const base64Pattern = /^data:image\/(png|jpg|jpeg|gif);base64,/;
+
     if (text.some((option) => !option || option.trim() === "")) {
-      errors.textOptions = "All text options are required";
+      errors.textOptions = "All text options are required.";
     }
-    if (image.some((option) => !option || option.trim() === "")) {
-      errors.textOptions = "All image options are required";
+    if (
+      image.some(
+        (option) =>
+          !option ||
+          option.trim() === "" ||
+          (!urlPattern.test(option) && !base64Pattern.test(option))
+      )
+    ) {
+      errors.imageOptions =
+        "All image options must be valid URLs and not to be empty.";
     }
   }
+
   return errors;
 };
 

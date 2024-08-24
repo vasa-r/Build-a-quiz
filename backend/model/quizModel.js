@@ -43,8 +43,14 @@ const quizSchema = new Schema({
         required: true,
       },
       options: {
-        type: [String],
-        required: true,
+        text: {
+          type: [String],
+          default: [],
+        },
+        image: {
+          type: [String],
+          default: [],
+        },
       },
       correctAnswer: {
         type: Number,

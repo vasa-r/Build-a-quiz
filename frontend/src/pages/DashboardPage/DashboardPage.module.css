@@ -1,0 +1,13 @@
+.dashWrapper {
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.sidebarContainer {
+  height: 100%;
+  width: 12.5rem;
+  overflow: hidden;
+  z-index: 10;
+  box-shadow: 0px 4px 4px 0px #00000040;
+}

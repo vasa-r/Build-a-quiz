@@ -9,7 +9,7 @@ const initialState = [
       text: ["", ""],
       image: ["", ""],
     },
-    correctAnswer: "",
+    correctAnswer: 0,
     timer: null,
   },
 ];
@@ -18,6 +18,13 @@ const quizQuestionSlice = createSlice({
   name: "quizQuestion",
   initialState,
   reducers: {
+    setQuestions: (state, action) => {
+      // Clear the existing state array
+      state.splice(0, state.length);
+
+      // Add new questions from the payload
+      state.push(...action.payload);
+    },
     addQuestions: (state) => {
       const newQuestion = {
         questionNo: state.length + 1,
@@ -27,7 +34,7 @@ const quizQuestionSlice = createSlice({
           text: ["", ""],
           image: ["", ""],
         },
-        correctAnswer: "",
+        correctAnswer: 0,
         timer: null,
       };
       state.push(newQuestion);
@@ -104,6 +111,7 @@ const quizQuestionSlice = createSlice({
         qstn.options["image"].splice(index, 1);
       }
     },
+    resetQuizQuestions: () => initialState,
   },
 });
 
@@ -114,6 +122,8 @@ export const {
   addOptions,
   removeOptions,
   resetOptions,
+  resetQuizQuestions,
+  setQuestions,
 } = quizQuestionSlice.actions;
 
 export default quizQuestionSlice.reducer;

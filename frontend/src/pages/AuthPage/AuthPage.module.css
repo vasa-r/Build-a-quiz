@@ -4,7 +4,7 @@
   align-items: center;
   padding: 70px 80px;
   height: 100vh;
-  overflow: hidden;
+  overflow: scroll;
 }
 
 .credArea {

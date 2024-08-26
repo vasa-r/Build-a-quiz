@@ -3,6 +3,8 @@ import styles from "./AuthPage.module.css";
 import useValidateRegister from "../../hooks/useValidateRegister";
 import useValidateLogin from "../../hooks/useValidateLogin";
 import { toast } from "react-toastify";
+import { useAuth } from "../../context/AuthContext";
+import { registerUser, loginUser } from "../../api/auth";
 
 const AuthPage = () => {
   const initialValues = {
@@ -11,10 +13,12 @@ const AuthPage = () => {
     password: "",
     confirmPassword: "",
   };
-  const [isLogin, setIsLogin] = useState(false);
+
   const [credentials, setCredentials] = useState(initialValues);
   const [formErrors, setFormErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
+
+  const { isLogin, setIsLogin, loginContext, setToken } = useAuth();
 
   const navigateSignUpPage = () => {
     setCredentials(initialValues);
@@ -40,7 +44,7 @@ const AuthPage = () => {
       if (Object.keys(errors).length === 0) {
         setIsLoading(true);
         try {
-          console.log("login");
+          login();
         } finally {
           setIsLoading(false);
           setCredentials(initialValues);
@@ -54,7 +58,7 @@ const AuthPage = () => {
       if (Object.keys(errors).length === 0) {
         setIsLoading(true);
         try {
-          console.log("register");
+          register();
         } finally {
           setIsLoading(false);
           setCredentials(initialValues);
@@ -62,6 +66,45 @@ const AuthPage = () => {
       } else {
         toast.error("Please ensure valid info is given");
       }
+    }
+  };
+
+  const register = async () => {
+    try {
+      const response = await registerUser(
+        credentials.name,
+        credentials.email,
+        credentials.password
+      );
+
+      if (response.success || response.status === 201) {
+        toast.success(response?.data?.message);
+        setCredentials(initialValues);
+        setIsLogin(true);
+      } else {
+        toast.error(response?.data?.message || "Registration failed");
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error("An error occurred during Sign Up. Please try again later.");
+    }
+  };
+
+  const login = async () => {
+    try {
+      const response = await loginUser(credentials.email, credentials.password);
+      if (response.success || response.status === 202) {
+        toast.success(response?.data?.message);
+        localStorage.setItem("token", response?.data?.token);
+        setToken(response?.data?.token);
+        loginContext(response?.data?.token);
+        setCredentials(initialValues);
+      } else {
+        toast.error(response?.data?.message || "Login failed");
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error("An error occurred during login. Please try again later.");
     }
   };
   return (

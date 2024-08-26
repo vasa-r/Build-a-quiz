@@ -36,7 +36,6 @@ const getAllQuiz = async () => {
         Authorization: `Bearer ${localStorage.getItem("token")}`,
       },
     });
-    console.log(response);
 
     return {
       success: true,

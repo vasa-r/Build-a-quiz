@@ -1,0 +1,75 @@
+.dataContainer {
+  height: 90px;
+  background-color: #fff;
+  border-radius: 5px;
+  padding: 8px;
+}
+
+.question {
+  font-size: 30px;
+  font-weight: 500;
+  line-height: 45px;
+  color: #000000;
+}
+
+.dataContainer h1,
+.dataContainer p {
+  text-align: center;
+}
+
+.dataContainer h1 {
+  font-size: 30px;
+  font-weight: 600;
+  line-height: 45px;
+  color: #474444;
+}
+
+.dataContainer p {
+  font-size: 14px;
+  line-height: 21px;
+  color: #474444;
+}
+
+.cardsContainer {
+  margin-top: 32px;
+  width: 62rem;
+  display: grid;
+  grid-template-columns: repeat(3, 300px);
+  justify-content: space-between;
+}
+
+hr {
+  margin-top: 32px;
+  width: 62rem;
+  border: 2px solid #d7d7d7;
+  border-radius: 5px;
+}
+
+.pollCards {
+  width: 62rem;
+  display: grid;
+  grid-template-columns: repeat(4, 230px);
+  gap: 24px;
+}
+
+.pollCard {
+  margin-top: 32px;
+  height: 90px;
+  border-radius: 5px;
+  padding: 8px;
+  background-color: #fff;
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+  align-items: center;
+  color: #474444;
+}
+
+.pollCard span {
+  font-size: 14px;
+  color: #474444;
+}
+
+.noData {
+  margin-top: 18px;
+}

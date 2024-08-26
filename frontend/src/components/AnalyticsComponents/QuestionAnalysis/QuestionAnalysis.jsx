@@ -4,6 +4,7 @@ import SingleQuestion from "../SingleQuestion/SingleQuestion";
 import { useParams } from "react-router-dom";
 import { getOneQuiz } from "../../../api/quiz";
 import QuestionAnalysShimmer from "../../LoadinComponents/QuestionAnalysShimmer/QuestionAnalysShimmer";
+import { toast } from "react-toastify";
 
 const QuestionAnalysis = () => {
   const [quiz, setQuiz] = useState(null);

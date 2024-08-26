@@ -2,9 +2,6 @@ import axios from "axios";
 
 const BACKEND_ORIGIN_URL = `${import.meta.env.VITE_API_BASE_URL}/api/v1`;
 
-const rawToken = localStorage.getItem("token");
-const token = rawToken.replace(/"/g, "");
-
 const getOneQuiz = async (quizId) => {
   try {
     const response = await axios.get(
@@ -12,7 +9,7 @@ const getOneQuiz = async (quizId) => {
       {
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
       }
     );
@@ -36,9 +33,10 @@ const getAllQuiz = async () => {
     const response = await axios.get(`${BACKEND_ORIGIN_URL}/quiz/get-all`, {
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
       },
     });
+    console.log(response);
 
     return {
       success: true,
@@ -66,7 +64,7 @@ const createQuiz = async (quizName, quizType, quizQuestions) => {
       {
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
       }
     );
@@ -95,7 +93,7 @@ const updateQuiz = async (quizId, quizQuestions) => {
       {
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
       }
     );
@@ -121,7 +119,7 @@ const deleteQuiz = async (quizId) => {
       {
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
       }
     );

@@ -1,13 +1,12 @@
 import React, { useState } from "react";
 import styles from "./SideBar.module.css";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
 
 const SideBar = () => {
-  const [isActive, setIsActive] = useState("dashboard");
-
-  const handleClick = (navItem) => {
-    setIsActive(navItem);
-  };
+  const { logoutContext } = useAuth();
+  const location = useLocation();
+  const isActive = (path) => location.pathname.startsWith(path);
 
   return (
     <div className={styles.sidebarWrapper}>
@@ -16,30 +15,27 @@ const SideBar = () => {
       </div>
       <div className={styles.navLinks}>
         <Link
-          to="/dashboard"
-          className={isActive === "dashboard" ? styles.activeNav : ""}
-          onClick={() => handleClick("dashboard")}
+          to="/main/dashboard"
+          className={isActive("/main/dashboard") ? styles.activeNav : ""}
         >
           Dashboard
         </Link>
         <Link
-          to="/analytics"
-          className={isActive === "analytics" ? styles.activeNav : ""}
-          onClick={() => handleClick("analytics")}
+          to="/main/analytics"
+          className={isActive("/main/analytics") ? styles.activeNav : ""}
         >
           Analytics
         </Link>
         <Link
-          to="/createQuiz"
-          className={isActive === "createQuiz" ? styles.activeNav : ""}
-          onClick={() => handleClick("createQuiz")}
+          to="/main/quiz"
+          className={isActive("/main/quiz") ? styles.activeNav : ""}
         >
           Create Quiz
         </Link>
       </div>
       <div className={styles.logout}>
         <hr />
-        <h1>LOGOUT</h1>
+        <h1 onClick={() => logoutContext()}>LOGOUT</h1>
       </div>
     </div>
   );

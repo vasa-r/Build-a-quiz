@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import styles from "./SideBar.module.css";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
@@ -11,7 +11,9 @@ const SideBar = () => {
   return (
     <div className={styles.sidebarWrapper}>
       <div className={styles.title}>
-        <h1>QUIZZIE</h1>
+        <Link to={"/"}>
+          <h1>QUIZZIE</h1>
+        </Link>
       </div>
       <div className={styles.navLinks}>
         <Link

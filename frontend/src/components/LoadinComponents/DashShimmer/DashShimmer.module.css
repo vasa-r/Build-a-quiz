@@ -1,0 +1,38 @@
+.shimmerWrapper {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 2;
+  padding: 80px;
+  gap: 100px;
+  overflow-y: hidden;
+}
+
+.top {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(333px, 1fr));
+  gap: 50px;
+}
+
+.topCard {
+  height: 145px;
+  border-radius: 10px;
+  background-color: #c7c8cc;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.bottom {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(12.5rem, 1fr));
+  gap: 36px;
+  margin-left: 24px;
+}
+
+.bottomCard {
+  height: 3.875rem;
+  background-color: #c7c8cc;
+  border-radius: 5px;
+}

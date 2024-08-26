@@ -1,0 +1,24 @@
+.analysWrapper {
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex: 2;
+  padding: 100px;
+  overflow-y: hidden;
+}
+
+.mainContainer {
+  width: 1000px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.mainContainer div {
+  width: 100%;
+  height: 40px;
+  border-radius: 10px;
+  background-color: #c7c8cc;
+}

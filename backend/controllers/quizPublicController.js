@@ -1,8 +1,15 @@
 const Quiz = require("../model/quizModel");
+const mongoose = require("mongoose");
 
 const getLiveQuiz = async (req, res, next) => {
   const { quizId } = req.params;
   try {
+    if (!mongoose.Types.ObjectId.isValid(quizId)) {
+      return res.status(400).json({
+        success: false,
+        message: "Quiz ID is invalid. Please don't modify ID.",
+      });
+    }
     const quiz = await Quiz.findById(quizId);
 
     if (!quiz) {

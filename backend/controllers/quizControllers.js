@@ -1,5 +1,6 @@
 const { format } = require("date-fns");
 const Quiz = require("../model/quizModel");
+const mongoose = require("mongoose");
 
 const getAllQuiz = async (req, res, next) => {
   const userId = req.user;
@@ -27,7 +28,15 @@ const getAllQuiz = async (req, res, next) => {
 const getSingleQuiz = async (req, res, next) => {
   const { quizId } = req.params;
   const userId = req.user;
+
   try {
+    if (!mongoose.Types.ObjectId.isValid(quizId)) {
+      return res.status(400).json({
+        success: false,
+        message: "Quiz ID is invalid. Please don't modify ID.",
+      });
+    }
+
     const quiz = await Quiz.findOne({ _id: quizId, createdBy: userId });
     if (!quiz) {
       return res.status(400).json({
@@ -84,6 +93,13 @@ const updateQuiz = async (req, res, next) => {
   const { quizId } = req.params;
   const userId = req.user;
   try {
+    if (!mongoose.Types.ObjectId.isValid(quizId)) {
+      return res.status(400).json({
+        success: false,
+        message: "Quiz ID is invalid. Please don't modify ID.",
+      });
+    }
+
     const quiz = await Quiz.findOne({
       _id: quizId,
       createdBy: userId,
@@ -114,6 +130,13 @@ const updateQuiz = async (req, res, next) => {
 const deleteQuiz = async (req, res, next) => {
   const { quizId } = req.params;
   try {
+    if (!mongoose.Types.ObjectId.isValid(quizId)) {
+      return res.status(400).json({
+        success: false,
+        message: "Quiz ID is invalid. Please don't modify ID.",
+      });
+    }
+
     const deleteQuiz = await Quiz.findByIdAndDelete(quizId);
 
     if (!deleteQuiz) {

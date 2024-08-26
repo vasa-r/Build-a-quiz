@@ -25,24 +25,18 @@ const QuizPublishedLink = () => {
   }, [ref]);
 
   const handleClose = () => {
-    // setShowShareLink(false);
     navigate("/main/dashboard");
   };
 
-  const handleShare = () => {
-    if (!id) {
-      return;
+  const handleShare = async () => {
+    try {
+      await navigator.clipboard.writeText(link);
+      toast.success("Link copied to Clipboard");
+    } catch (error) {
+      toast.error("Failed to copy link. Please try again.");
     }
-
-    navigator.clipboard
-      .writeText(link)
-      .then(() => {
-        toast.success("Link copied to Clipboard");
-      })
-      .catch(() => {
-        toast.error("Failed to copy link. Please try again.");
-      });
   };
+
   return (
     <div className={styles.modalOverlay}>
       <div className={styles.mainContainer} ref={ref}>

@@ -27,6 +27,7 @@ const QnaQuiz = () => {
   const [selectedQuestion, setSelectedQuestion] = useState(1);
   const [error, setError] = useState(null);
   const [quizId, setQuizId] = useState("");
+  const [isCreating, setIsCreating] = useState(false);
   const { quizName, quizType } = useSelector((store) => store.fields);
   const quizQuestions = useSelector((store) => store.questions);
   const navigate = useNavigate();
@@ -49,7 +50,6 @@ const QnaQuiz = () => {
     const qstnError = useValidateQnaQuiz(
       quizQuestions[quizQuestions.length - 1]
     );
-    console.log(qstnError);
 
     if (Object.keys(qstnError).length !== 0) {
       setError((prevError) => ({
@@ -101,10 +101,7 @@ const QnaQuiz = () => {
   };
 
   const handleOptionChange = (e, questionNo, optionIndex, optionType) => {
-    console.log(questionNo, optionIndex, optionType);
     const { value } = e.target;
-
-    console.log(value);
 
     dispatch(
       updateQuestion({
@@ -159,7 +156,7 @@ const QnaQuiz = () => {
 
   const handleCorrectAnswer = (questionNo, index) => {
     if (id) {
-      toast.error("Can't change correct answer. You can edit optoin");
+      toast.error("Can't change correct answer. You can edit option");
     }
     if (!id) {
       dispatch(updateQuestion({ questionNo, index }));
@@ -171,22 +168,30 @@ const QnaQuiz = () => {
   };
 
   //if refreash happens it will go the dashboard
-  // useEffect(() => {
-  //   if (id) {
-  //     return;
-  //   }
-  //   if (!quizName || !quizType) {
-  //     navigate("/main/dashboard");
-  //   }
-  // }, [quizName, quizType, navigate]);
+  useEffect(() => {
+    if (isCreating) {
+      return;
+    }
+    if (id) {
+      return;
+    }
+    if (!quizName || !quizType) {
+      navigate("/main/quiz");
+    }
+  }, [quizName, quizType, navigate]);
 
   const handleCancel = () => {
     dispatch(resetQuizData());
     dispatch(resetQuizQuestions());
-    navigate("/main/dashboard");
+    if (id) {
+      navigate("/main/analytics");
+    } else {
+      navigate("/main/dashboard");
+    }
   };
 
   const handleCreate = async () => {
+    setIsCreating(true);
     const qstnError = useValidateQnaQuiz(
       quizQuestions[quizQuestions.length - 1]
     );
@@ -196,6 +201,7 @@ const QnaQuiz = () => {
         ...prevError,
         [quizQuestions[quizQuestions.length - 1].questionNo]: qstnError,
       }));
+      setIsCreating(false);
       return;
     } else {
       setError((prevError) => ({
@@ -204,7 +210,6 @@ const QnaQuiz = () => {
       }));
 
       try {
-        console.log(localStorage.getItem("token"));
         if (id) {
           await updateOldQuiz();
         } else {
@@ -212,6 +217,8 @@ const QnaQuiz = () => {
         }
       } catch (error) {
         toast.error("Please try again also check every fields are filled");
+      } finally {
+        setIsCreating(false);
       }
     }
   };
@@ -219,8 +226,7 @@ const QnaQuiz = () => {
   const createNewQuiz = async () => {
     try {
       const response = await createQuiz(quizName, quizType, quizQuestions);
-      console.log(quizName, quizType, quizQuestions);
-      console.log(response);
+
       if (response.success || response.status === 201) {
         toast.success(response?.data?.message);
         const newShareId = response?.data?.data._id;
@@ -243,8 +249,6 @@ const QnaQuiz = () => {
   const updateOldQuiz = async () => {
     try {
       const response = await updateQuiz(id, quizQuestions);
-      console.log(quizName, quizType, quizQuestions);
-      console.log(response);
       if (response.success || response.status === 200) {
         toast.success(response?.data?.message);
         dispatch(resetQuizData());
@@ -266,15 +270,14 @@ const QnaQuiz = () => {
   const getOldQuiz = async () => {
     try {
       const response = await getOneQuiz(quizId);
-      console.log(response);
+
       if (response.success || response.status === 200) {
         const { data } = response.data;
-        console.log(data);
+
         dispatch(
           setQuizData({ quizName: data.quizName, quizType: data.quizType })
         );
 
-        console.log(data.quizQuestions);
         dispatch(setQuestions(data.quizQuestions));
       } else {
         toast.error(
@@ -283,7 +286,6 @@ const QnaQuiz = () => {
         );
       }
     } catch (error) {
-      console.log(error);
       toast.error(
         "An error occurred during fetching quiz. Please try again later."
       );
@@ -309,7 +311,7 @@ const QnaQuiz = () => {
                     onClick={() => handleQuestionSelect(questionNo)}
                   >
                     {questionNo}
-                    {questionNo !== 1 && (
+                    {!id && questionNo !== 1 && (
                       <img
                         src={Cross}
                         alt="remove questiion"
@@ -322,7 +324,7 @@ const QnaQuiz = () => {
                   </div>
                 );
               })}
-              {quizQuestions.length < 5 && (
+              {!id && quizQuestions.length < 5 && (
                 <div
                   className={styles.plusIcon}
                   onClick={() => handleAddQuestion(selectedQuestion)}
@@ -337,7 +339,7 @@ const QnaQuiz = () => {
             type="text"
             placeholder="Q & A Question"
             autoFocus={true}
-            value={selectedQuestionData ? selectedQuestionData.question : ""}
+            value={selectedQuestionData ? selectedQuestionData?.question : ""}
             onChange={(e) => handleQuestionName(e, selectedQuestion)}
           />
 
@@ -346,7 +348,7 @@ const QnaQuiz = () => {
               className={styles.errorText}
               style={{ marginTop: "-20px", marginLeft: "2.5rem" }}
             >
-              {error[selectedQuestion].question}
+              {error[selectedQuestion]?.question}
             </p>
           )}
           <div className={styles.optionType}>
@@ -386,14 +388,14 @@ const QnaQuiz = () => {
           </div>
           <div className={styles.bottom}>
             <div className={styles.answerOptions}>
-              {selectedQuestionData.options.text.map((option, index) => (
+              {selectedQuestionData?.options?.text.map((option, index) => (
                 <div className={styles.answerOption} key={index}>
                   <input
                     className={styles.radioCheck}
                     type="radio"
                     name="answerOption"
                     id={`option-${index}`}
-                    checked={selectedQuestionData.correctAnswer - 1 === index}
+                    checked={selectedQuestionData?.correctAnswer - 1 === index}
                     onChange={() =>
                       handleCorrectAnswer(selectedQuestion, index)
                     }
@@ -402,10 +404,10 @@ const QnaQuiz = () => {
                   <input
                     className={
                       selectedQuestionData?.optionType === "textNimage"
-                        ? selectedQuestionData.correctAnswer - 1 === index
+                        ? selectedQuestionData?.correctAnswer - 1 === index
                           ? styles.selectedTextImageInput
                           : styles.textImageInput
-                        : selectedQuestionData.correctAnswer - 1 === index
+                        : selectedQuestionData?.correctAnswer - 1 === index
                         ? styles.selectedTextInput
                         : styles.textInput
                     }
@@ -420,16 +422,16 @@ const QnaQuiz = () => {
                     value={
                       selectedQuestionData?.optionType !== "textNimage"
                         ? selectedQuestionData?.optionType === "text"
-                          ? selectedQuestionData.options.text[index] || ""
-                          : selectedQuestionData.options.image[index] || ""
-                        : selectedQuestionData.options.text[index]
+                          ? selectedQuestionData?.options?.text[index] || ""
+                          : selectedQuestionData?.options?.image[index] || ""
+                        : selectedQuestionData?.options?.text[index]
                     }
                     onChange={
                       selectedQuestionData?.optionType !== "textNimage"
                         ? (e) =>
                             handleOptionChange(
                               e,
-                              selectedQuestionData.questionNo,
+                              selectedQuestionData?.questionNo,
                               index,
                               selectedQuestionData?.optionType === "text"
                                 ? "text"
@@ -438,7 +440,7 @@ const QnaQuiz = () => {
                         : (e) =>
                             handleTextImageChange(
                               e,
-                              selectedQuestionData.questionNo,
+                              selectedQuestionData?.questionNo,
                               index,
                               "textNimage",
                               "text"
@@ -449,17 +451,17 @@ const QnaQuiz = () => {
                   {selectedQuestionData?.optionType === "textNimage" && (
                     <input
                       className={
-                        selectedQuestionData.correctAnswer - 1 === index
+                        selectedQuestionData?.correctAnswer - 1 === index
                           ? styles.selectedImageInput
                           : styles.imageInput
                       }
                       type="text"
                       placeholder="Image URL"
-                      value={selectedQuestionData.options.image[index] || ""}
+                      value={selectedQuestionData?.options?.image[index] || ""}
                       onChange={(e) =>
                         handleTextImageChange(
                           e,
-                          selectedQuestionData.questionNo,
+                          selectedQuestionData?.questionNo,
                           index,
                           "textNimage",
                           "image"
@@ -474,8 +476,8 @@ const QnaQuiz = () => {
                       onClick={() =>
                         removeOption(
                           index,
-                          selectedQuestionData.questionNo,
-                          selectedQuestionData.optionType
+                          selectedQuestionData?.questionNo,
+                          selectedQuestionData?.optionType
                         )
                       }
                     />
@@ -487,7 +489,7 @@ const QnaQuiz = () => {
                   className={styles.errorText}
                   style={{ marginLeft: "2.5rem" }}
                 >
-                  {error[selectedQuestion].textOptions}
+                  {error[selectedQuestion]?.textOptions}
                 </p>
               )}
               {error !== null && error[selectedQuestion]?.imageOptions && (
@@ -495,7 +497,7 @@ const QnaQuiz = () => {
                   className={styles.errorText}
                   style={{ marginLeft: "2.5rem" }}
                 >
-                  {error[selectedQuestion].imageOptions}
+                  {error[selectedQuestion]?.imageOptions}
                 </p>
               )}
 
@@ -504,7 +506,7 @@ const QnaQuiz = () => {
                   className={styles.errorText}
                   style={{ marginLeft: "2.5rem" }}
                 >
-                  {error[selectedQuestion].options}
+                  {error[selectedQuestion]?.options}
                 </p>
               )}
               {error !== null && error[selectedQuestion]?.correctAnswer && (
@@ -512,16 +514,16 @@ const QnaQuiz = () => {
                   className={styles.errorText}
                   style={{ marginLeft: "2.5rem" }}
                 >
-                  {error[selectedQuestion].correctAnswer}
+                  {error[selectedQuestion]?.correctAnswer}
                 </p>
               )}
-              {!id && selectedQuestionData.options.text.length < 4 && (
+              {!id && selectedQuestionData?.options?.text?.length < 4 && (
                 <div
                   className={styles.addOption}
                   onClick={() =>
                     addOption(
-                      selectedQuestionData.questionNo,
-                      selectedQuestionData.optionType
+                      selectedQuestionData?.questionNo,
+                      selectedQuestionData?.optionType
                     )
                   }
                 >
@@ -533,33 +535,35 @@ const QnaQuiz = () => {
               <p className={styles.heading}>Timer</p>
               <p
                 className={
-                  selectedQuestionData.timer === null
+                  selectedQuestionData?.timer === null
                     ? styles.selectedTimeOption
                     : styles.timeOption
                 }
                 onClick={() =>
-                  handleTimer(selectedQuestionData.questionNo, null)
+                  handleTimer(selectedQuestionData?.questionNo, null)
                 }
               >
                 OFF
               </p>
               <p
                 className={
-                  selectedQuestionData.timer === 5
+                  selectedQuestionData?.timer === 5
                     ? styles.selectedTimeOption
                     : styles.timeOption
                 }
-                onClick={() => handleTimer(selectedQuestionData.questionNo, 5)}
+                onClick={() => handleTimer(selectedQuestionData?.questionNo, 5)}
               >
                 5 sec
               </p>
               <p
                 className={
-                  selectedQuestionData.timer === 10
+                  selectedQuestionData?.timer === 10
                     ? styles.selectedTimeOption
                     : styles.timeOption
                 }
-                onClick={() => handleTimer(selectedQuestionData.questionNo, 10)}
+                onClick={() =>
+                  handleTimer(selectedQuestionData?.questionNo, 10)
+                }
               >
                 10 sec
               </p>
@@ -569,7 +573,12 @@ const QnaQuiz = () => {
             <button className={styles.cancel} onClick={handleCancel}>
               Cancel
             </button>
-            <button className={styles.create} onClick={handleCreate}>
+            {isCreating && <div className={styles.loadingRing}></div>}
+            <button
+              className={styles.create}
+              onClick={handleCreate}
+              disabled={isCreating}
+            >
               {id ? "Update Quiz" : "Create Quiz"}
             </button>
           </div>

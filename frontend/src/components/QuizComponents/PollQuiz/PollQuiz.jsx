@@ -18,6 +18,7 @@ import {
 import {
   resetQuizData,
   setQuizData,
+  setQuizType,
 } from "../../../redux/slices/quizFieldSlice";
 import { toast } from "react-toastify";
 import useValidatePollQuiz from "../../../hooks/useValidatePollQuiz";
@@ -27,6 +28,7 @@ const PollQuiz = () => {
   const [selectedQuestion, setSelectedQuestion] = useState(1);
   const [error, setError] = useState(null);
   const [quizId, setQuizId] = useState("");
+  const [isCreating, setIsCreating] = useState(false);
   const { quizName, quizType } = useSelector((store) => store.fields);
   const quizQuestions = useSelector((store) => store.questions);
   const navigate = useNavigate();
@@ -49,7 +51,6 @@ const PollQuiz = () => {
     const qstnError = useValidatePollQuiz(
       quizQuestions[quizQuestions.length - 1]
     );
-    console.log(qstnError);
 
     if (Object.keys(qstnError).length !== 0) {
       setError((prevError) => ({
@@ -101,10 +102,7 @@ const PollQuiz = () => {
   };
 
   const handleOptionChange = (e, questionNo, optionIndex, optionType) => {
-    console.log(questionNo, optionIndex, optionType);
     const { value } = e.target;
-
-    console.log(value);
 
     dispatch(
       updateQuestion({
@@ -158,22 +156,31 @@ const PollQuiz = () => {
   };
 
   //if refreash happens it will go the dashboard
-  // useEffect(() => {
-  //   if (id) {
-  //     return;
-  //   }
-  //   if (!quizName || !quizType) {
-  //     navigate("/main/dashboard");
-  //   }
-  // }, [quizName, quizType, navigate]);
+  useEffect(() => {
+    if (isCreating) {
+      return;
+    }
+    if (id) {
+      return;
+    }
+    if (!quizName || !quizType) {
+      navigate("/main/quiz");
+    }
+  }, [quizName, quizType, navigate]);
 
   const handleCancel = () => {
     dispatch(resetQuizData());
     dispatch(resetQuizQuestions());
-    navigate("/main/dashboard");
+    if (id) {
+      navigate("/main/analytics");
+    } else {
+      navigate("/main/dashboard");
+    }
   };
 
   const handleCreate = async () => {
+    setIsCreating(true);
+
     const qstnError = useValidatePollQuiz(
       quizQuestions[quizQuestions.length - 1]
     );
@@ -183,6 +190,7 @@ const PollQuiz = () => {
         ...prevError,
         [quizQuestions[quizQuestions.length - 1].questionNo]: qstnError,
       }));
+      setIsCreating(false);
       return;
     } else {
       setError((prevError) => ({
@@ -191,28 +199,35 @@ const PollQuiz = () => {
       }));
 
       try {
-        console.log(localStorage.getItem("token"));
         if (id) {
           await updateOldQuiz();
         } else {
+          setIsCreating(true);
+
           await createNewQuiz();
         }
       } catch (error) {
         toast.error("Please try again also check every fields are filled");
+      } finally {
+        setIsCreating(false);
       }
     }
   };
 
   const createNewQuiz = async () => {
+    setIsCreating(true);
+
     try {
       const response = await createQuiz(quizName, quizType, quizQuestions);
-      console.log(quizName, quizType, quizQuestions);
-      console.log(response);
+
       if (response.success || response.status === 201) {
         toast.success(response?.data?.message);
         const newShareId = response?.data?.data._id;
+        navigate("/main/dashboard");
         dispatch(resetQuizData());
         dispatch(resetQuizQuestions());
+        dispatch(setQuizType("poll"));
+        setIsCreating(true);
         navigate(`/main/share/${newShareId}`);
       } else {
         toast.error(
@@ -221,7 +236,6 @@ const PollQuiz = () => {
         );
       }
     } catch (error) {
-      console.log(error);
       toast.error(
         "An error occurred during form creation. Please try again later."
       );
@@ -231,8 +245,7 @@ const PollQuiz = () => {
   const updateOldQuiz = async () => {
     try {
       const response = await updateQuiz(id, quizQuestions);
-      console.log(quizName, quizType, quizQuestions);
-      console.log(response);
+
       if (response.success || response.status === 200) {
         toast.success(response?.data?.message);
         dispatch(resetQuizData());
@@ -254,15 +267,14 @@ const PollQuiz = () => {
   const getOldQuiz = async () => {
     try {
       const response = await getOneQuiz(quizId);
-      console.log(response);
+
       if (response.success || response.status === 200) {
         const { data } = response.data;
-        console.log(data);
+
         dispatch(
           setQuizData({ quizName: data.quizName, quizType: data.quizType })
         );
 
-        console.log(data.quizQuestions);
         dispatch(setQuestions(data.quizQuestions));
       } else {
         toast.error(
@@ -271,7 +283,6 @@ const PollQuiz = () => {
         );
       }
     } catch (error) {
-      console.log(error);
       toast.error(
         "An error occurred during fetching quiz. Please try again later."
       );
@@ -296,7 +307,7 @@ const PollQuiz = () => {
                   onClick={() => handleQuestionSelect(questionNo)}
                 >
                   {questionNo}
-                  {questionNo !== 1 && (
+                  {!id && questionNo !== 1 && (
                     <img
                       src={Cross}
                       alt="remove question"
@@ -309,7 +320,7 @@ const PollQuiz = () => {
                 </div>
               );
             })}
-            {quizQuestions.length < 5 && (
+            {!id && quizQuestions.length < 5 && (
               <div
                 className={styles.plusIcon}
                 onClick={() => handleAddQuestion(selectedQuestion)}
@@ -326,16 +337,13 @@ const PollQuiz = () => {
               type="text"
               placeholder="Poll Question"
               autoFocus={true}
-              value={selectedQuestionData ? selectedQuestionData.question : ""}
+              value={selectedQuestionData ? selectedQuestionData?.question : ""}
               onChange={(e) => handleQuestionName(e, selectedQuestion)}
             />
 
-            {console.log("Selected Question:", selectedQuestion)}
-            {console.log("Error State:", error)}
-
             {error !== null && error[selectedQuestion]?.question && (
               <p className={styles.errorText} style={{ marginTop: "-20px" }}>
-                {error[selectedQuestion].question}
+                {error[selectedQuestion]?.question}
               </p>
             )}
             <div className={styles.optionType}>
@@ -375,15 +383,15 @@ const PollQuiz = () => {
             </div>
             <div className={styles.bottom}>
               <div className={styles.answerOptions}>
-                {selectedQuestionData.options.text.map((option, index) => (
+                {selectedQuestionData?.options?.text.map((option, index) => (
                   <div className={styles.answerOption} key={index}>
                     <input
                       className={
                         selectedQuestionData?.optionType === "textNimage"
-                          ? selectedQuestionData.correctAnswer - 1 === index
+                          ? selectedQuestionData?.correctAnswer - 1 === index
                             ? styles.selectedTextImageInput
                             : styles.textImageInput
-                          : selectedQuestionData.correctAnswer - 1 === index
+                          : selectedQuestionData?.correctAnswer - 1 === index
                           ? styles.selectedTextInput
                           : styles.textInput
                       }
@@ -398,16 +406,16 @@ const PollQuiz = () => {
                       value={
                         selectedQuestionData?.optionType !== "textNimage"
                           ? selectedQuestionData?.optionType === "text"
-                            ? selectedQuestionData.options.text[index] || ""
-                            : selectedQuestionData.options.image[index] || ""
-                          : selectedQuestionData.options.text[index]
+                            ? selectedQuestionData?.options?.text[index] || ""
+                            : selectedQuestionData?.options?.image[index] || ""
+                          : selectedQuestionData?.options?.text[index]
                       }
                       onChange={
                         selectedQuestionData?.optionType !== "textNimage"
                           ? (e) =>
                               handleOptionChange(
                                 e,
-                                selectedQuestionData.questionNo,
+                                selectedQuestionData?.questionNo,
                                 index,
                                 selectedQuestionData?.optionType === "text"
                                   ? "text"
@@ -416,7 +424,7 @@ const PollQuiz = () => {
                           : (e) =>
                               handleTextImageChange(
                                 e,
-                                selectedQuestionData.questionNo,
+                                selectedQuestionData?.questionNo,
                                 index,
                                 "textNimage",
                                 "text"
@@ -427,17 +435,19 @@ const PollQuiz = () => {
                     {selectedQuestionData?.optionType === "textNimage" && (
                       <input
                         className={
-                          selectedQuestionData.correctAnswer - 1 === index
+                          selectedQuestionData?.correctAnswer - 1 === index
                             ? styles.selectedImageInput
                             : styles.imageInput
                         }
                         type="text"
                         placeholder="Image URL"
-                        value={selectedQuestionData.options.image[index] || ""}
+                        value={
+                          selectedQuestionData?.options?.image[index] || ""
+                        }
                         onChange={(e) =>
                           handleTextImageChange(
                             e,
-                            selectedQuestionData.questionNo,
+                            selectedQuestionData?.questionNo,
                             index,
                             "textNimage",
                             "image"
@@ -452,8 +462,8 @@ const PollQuiz = () => {
                         onClick={() =>
                           removeOption(
                             index,
-                            selectedQuestionData.questionNo,
-                            selectedQuestionData.optionType
+                            selectedQuestionData?.questionNo,
+                            selectedQuestionData?.optionType
                           )
                         }
                       />
@@ -462,27 +472,27 @@ const PollQuiz = () => {
                 ))}
                 {error !== null && error[selectedQuestion]?.textOptions && (
                   <p className={styles.errorText}>
-                    {error[selectedQuestion].textOptions}
+                    {error[selectedQuestion]?.textOptions}
                   </p>
                 )}
                 {error !== null && error[selectedQuestion]?.imageOptions && (
                   <p className={styles.errorText}>
-                    {error[selectedQuestion].imageOptions}
+                    {error[selectedQuestion]?.imageOptions}
                   </p>
                 )}
 
                 {error !== null && error[selectedQuestion]?.options && (
                   <p className={styles.errorText}>
-                    {error[selectedQuestion].options}
+                    {error[selectedQuestion]?.options}
                   </p>
                 )}
-                {!id && selectedQuestionData.options.text.length < 4 && (
+                {!id && selectedQuestionData?.options?.text?.length < 4 && (
                   <div
                     className={styles.addOption}
                     onClick={() =>
                       addOption(
-                        selectedQuestionData.questionNo,
-                        selectedQuestionData.optionType
+                        selectedQuestionData?.questionNo,
+                        selectedQuestionData?.optionType
                       )
                     }
                   >
@@ -497,7 +507,12 @@ const PollQuiz = () => {
           <button className={styles.cancel} onClick={handleCancel}>
             Cancel
           </button>
-          <button className={styles.create} onClick={handleCreate}>
+          {isCreating && <div className={styles.loadingRing}></div>}
+          <button
+            className={styles.create}
+            onClick={handleCreate}
+            disabled={isCreating}
+          >
             {id ? "Update Quiz" : "Create Quiz"}
           </button>
         </div>

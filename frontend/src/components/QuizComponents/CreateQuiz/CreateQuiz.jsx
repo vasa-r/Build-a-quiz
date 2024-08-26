@@ -17,6 +17,10 @@ const CreateQuiz = () => {
   const ref = useRef();
   const errors = {};
 
+  useEffect(() => {
+    dispatch(setQuizType(""));
+  }, []);
+
   const handleNameChange = (e) => {
     dispatch(setQuizName(e.target.value));
   };

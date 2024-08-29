@@ -308,7 +308,7 @@ const Quiz = () => {
               ))}
             </div>
           )}
-          {isCreating && <div className={styles.loadingRing}></div>}
+          {isLoading && <div className={styles.loadingRing}></div>}
           <button
             className={styles.LiveQuizButton}
             onClick={() => handleNext(false)}

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import styles from "./QNAquiz.module.css";
+import styles from "./QnaQuiz.module.css";
 import Cross from "../../../assets/cross.svg";
 import Plus from "../../../assets/plus.svg";
 import Delete from "../../../assets/delete.svg";

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import styles from "./Pollquiz.module.css";
+import styles from "./PollQuiz.module.css";
 import Cross from "../../../assets/cross.svg";
 import Plus from "../../../assets/plus.svg";
 import Delete from "../../../assets/delete.svg";

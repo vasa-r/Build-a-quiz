@@ -36,7 +36,7 @@ const AuthPage = () => {
     setCredentials((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (isLogin) {
       const errors = useValidateLogin(credentials);
@@ -44,7 +44,7 @@ const AuthPage = () => {
       if (Object.keys(errors).length === 0) {
         setIsLoading(true);
         try {
-          login();
+          await login();
         } finally {
           setIsLoading(false);
           setCredentials(initialValues);
@@ -58,7 +58,7 @@ const AuthPage = () => {
       if (Object.keys(errors).length === 0) {
         setIsLoading(true);
         try {
-          register();
+          await register();
         } finally {
           setIsLoading(false);
           setCredentials(initialValues);
@@ -212,10 +212,11 @@ const AuthPage = () => {
                   : "Signing Up..."
                 : isLogin
                 ? "Log In"
-                : "Sign-Up"}
+                : "Sign Up"}
             </button>
           </div>
         </form>
+        {isLoading && <div className={styles.loadingRing}></div>}
       </div>
     </div>
   );

@@ -8,11 +8,13 @@
   gap: 60px;
   overflow-y: scroll;
   scroll-behavior: smooth;
+  overflow-x: hidden;
 }
 
 .stats {
+  width: 100%;
   display: grid;
-  grid-template-columns: repeat(3, minmax(333px, 1fr));
+  grid-template-columns: repeat(3, 1fr);
   gap: 50px;
 }
 
@@ -71,8 +73,9 @@
 }
 
 .trendingQuiz {
+  width: 98%;
   display: grid;
-  grid-template-columns: repeat(4, minmax(12.5rem, 1fr));
+  grid-template-columns: repeat(4, 1fr);
   gap: 36px;
   margin-left: 24px;
 }

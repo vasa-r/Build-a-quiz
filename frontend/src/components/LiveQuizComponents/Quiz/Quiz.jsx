@@ -16,6 +16,7 @@ const Quiz = () => {
   const quizQuestions = useSelector((store) => store.questions);
   const [showQnaEnd, setShowQnaEnd] = useState(false);
   const [showPollEnd, setShowPollEnd] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [correctAnswers, setCorrectAnswers] = useState(0);
   const [updatedCorrectAnswers, setUpdatedCorrectAnswers] = useState(false);
   const { id } = useParams();
@@ -77,6 +78,7 @@ const Quiz = () => {
   const handleNext = useCallback(
     async (autoNext = false) => {
       //to check if the timer is null (no timer) and no option is selected
+      setIsLoading(true);
       if (
         !autoNext &&
         selectedQuestionData?.timer === null &&
@@ -140,6 +142,8 @@ const Quiz = () => {
           }
         } catch (error) {
           toast.error("Try again later");
+        } finally {
+          setIsLoading(false);
         }
       }
 
@@ -304,9 +308,11 @@ const Quiz = () => {
               ))}
             </div>
           )}
+          {isCreating && <div className={styles.loadingRing}></div>}
           <button
             className={styles.LiveQuizButton}
             onClick={() => handleNext(false)}
+            disabled={isLoading}
           >
             {currQuestion < quizQuestions.length ? "NEXT" : "SUBMIT"}
           </button>
